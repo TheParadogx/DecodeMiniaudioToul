@@ -1,0 +1,9 @@
+﻿################################################################################
+# この .gitignore ファイルは Microsoft(R) Visual Studio によって自動的に作成されました。
+################################################################################
+
+/.vs/DecodeMiniAudio
+/x64/Debug
+/DecodeMiniAudio/x64/Debug
+/DecodeMiniAudio/x64/Release
+/AudioConverter/x64/Release
