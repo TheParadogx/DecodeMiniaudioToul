@@ -9,7 +9,7 @@
 #include<vector>
 
 /// <summary>
-/// ƒGƒ‰[ƒƒbƒZ[ƒW•\¦
+/// ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸è¡¨ç¤º
 /// </summary>
 void AudioConverter::print_impl_ma_error(const std::wstring& Message, ma_result Result)
 {
@@ -20,14 +20,14 @@ void AudioConverter::print_impl_ma_error(const std::wstring& Message, ma_result 
 }
 
 /// <summary>
-/// ‰¹ºƒtƒ@ƒCƒ‹‚ğ.aud(ƒoƒCƒiƒŠ)‚É•ÏŠ·‚·‚é
+/// éŸ³å£°ãƒ•ã‚¡ã‚¤ãƒ«ã‚’.aud(ãƒã‚¤ãƒŠãƒª)ã«å¤‰æ›ã™ã‚‹
 /// </summary>
-/// <param name="InputPath">•ÏŠ·‚µ‚½‚¢ƒtƒ@ƒCƒ‹ƒpƒX</param>
-/// <param name="OverWrite">true:ã‘‚«‚·‚é</param>
-/// <returns>true:¬Œ÷</returns>
+/// <param name="InputPath">å¤‰æ›ã—ãŸã„ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹</param>
+/// <param name="OverWrite">true:ä¸Šæ›¸ãã™ã‚‹</param>
+/// <returns>true:æˆåŠŸ</returns>
 bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 {
-	//	Šg’£q‚Ì”»’è
+	//	æ‹¡å¼µå­ã®åˆ¤å®š
 	static const std::vector<std::wstring> Extensions = { L".wav", L".mp3", L".flac", L".ogg" };
 	bool Supported = false;
 	for (const auto& ext : Extensions)
@@ -43,7 +43,7 @@ bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 		return false;
 	}
 
-	//	o—ÍƒpƒX‚Ìİ’è
+	//	å‡ºåŠ›ãƒ‘ã‚¹ã®è¨­å®š
 	fs::path OutputPath = InputPath;
 	OutputPath.replace_extension(L".aud");
 	if (OverWrite == false && fs::exists(OutputPath))
@@ -51,8 +51,8 @@ bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 		std::wcout << L"Skiping: " << InputPath.filename() << std::endl;
 	}
 
-	//	ƒfƒR[ƒ_‰Šú‰»
-	ma_decoder_config Config = ma_decoder_config_init(ma_format_s16, 0, 0);
+	//	ãƒ‡ã‚³ãƒ¼ãƒ€åˆæœŸåŒ–
+	ma_decoder_config Config = ma_decoder_config_init(ma_format_s16, 2, 48000);
 	ma_decoder Decoder;
 	ma_result Result = ma_decoder_init_file_w(InputPath.c_str(), &Config, &Decoder);
 	if (Result != MA_SUCCESS)
@@ -61,7 +61,7 @@ bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 		return false;
 	}
 
-	//	o—Íƒtƒ@ƒCƒ‹“WŠJ
+	//	å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«å±•é–‹
 	std::ofstream ofs(OutputPath, std::ios::binary);
 	if (!ofs)
 	{
@@ -70,7 +70,7 @@ bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 		return false;
 	}
 
-	//	ƒwƒbƒ_‘‚«‚İ
+	//	ãƒ˜ãƒƒãƒ€æ›¸ãè¾¼ã¿
 	AudioHeader Header = {};
 	Header.SampleRate = Decoder.outputSampleRate;
 	Header.Channels = static_cast<uint16_t>(Decoder.outputChannels);
@@ -78,8 +78,8 @@ bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 	Header.FrameCount = 0;
 	ofs.write(reinterpret_cast<const char*>(&Header), sizeof(Header));
 
-	//	ƒ`ƒƒƒ“ƒNˆ—
-	//	16384ƒtƒŒ[ƒ€ = ƒXƒeƒŒƒI16bit‚Å–ñ64KB
+	//	ãƒãƒ£ãƒ³ã‚¯å‡¦ç†
+	//	16384ãƒ•ãƒ¬ãƒ¼ãƒ  = ã‚¹ãƒ†ãƒ¬ã‚ª16bitã§ç´„64KB
 	constexpr ma_uint64 CHUNK_SIZE = 16384;
 	std::vector<int16_t> Buffer(CHUNK_SIZE * Decoder.outputChannels);
 	ma_uint64 TotalFramesRead = 0;
@@ -95,13 +95,13 @@ bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 			TotalFramesRead += FramesRead;
 		}
 
-		//	I’[‚È‚çI—¹
+		//	çµ‚ç«¯ãªã‚‰çµ‚äº†
 		if (Result == MA_AT_END)
 		{
 			break;
 		}
 
-		//	¬Œ÷”»’è
+		//	æˆåŠŸåˆ¤å®š
 		if (Result != MA_SUCCESS)
 		{
 			print_impl_ma_error(L"Error during decoding" + InputPath.filename().wstring(), Result);
@@ -109,7 +109,7 @@ bool AudioConverter::Convert(const fs::path& InputPath, bool OverWrite)
 		}
 	}
 
-	//	ƒwƒbƒ_‚ÌŠm’è
+	//	ãƒ˜ãƒƒãƒ€ã®ç¢ºå®š
 	Header.FrameCount = TotalFramesRead;
 	ofs.seekp(0, std::ios::beg);
 	ofs.write(reinterpret_cast<const char*>(&Header), sizeof(Header));
